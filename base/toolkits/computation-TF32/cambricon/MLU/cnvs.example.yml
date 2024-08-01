@@ -10,4 +10,4 @@ custom:
       output_data_type: "tfloat"
       input_data_random: false
       correct_check: false
-      iterations: 30000
+      iterations: 3000

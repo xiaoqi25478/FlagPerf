@@ -24,7 +24,7 @@ if [ "$cur_ip" == "$ip1" ]; then
 else
     export MLU_VISIBLE_DEVICES=1
 fi
-LOG_PATH=`pwd`/`hostname -i`_run_log
+LOG_PATH=`pwd`/run_log
 tcp_if_include=`echo ${ip1} | awk -F'.' '{print $1"."$2"."$3}'`
 /usr/local/openmpi/bin/mpirun \
         --allow-run-as-root -n 2 --host ${ip1}:1,${ip2}:1 \

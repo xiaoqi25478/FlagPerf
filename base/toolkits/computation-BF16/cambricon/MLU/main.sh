@@ -1,7 +1,8 @@
 #!/bin/bash
 export MLU_VISIBLE_DEVICES=0
-LOG_PATH=`pwd`/`hostname -i`_run_log
-cnvs -r matmul_performance -c `pwd`/cnvs.example.yml 2>&1 | tee ${LOG_PATH}
+LOG_PATH=`pwd`/run_log
+cnperf-cli record -o record_log cnvs -r matmul_performance -c `pwd`/cnvs.example.yml 2>&1 | tee ${LOG_PATH}
+cnperf-cli report -i record_log
 value=$(grep -o 'matmul performance(GOPS): [0-9.]\+' ${LOG_PATH} )
 number=$(echo $value | grep -o '[0-9.]\+')
 result=$(python3 -c "print(float($number) / 1000)")

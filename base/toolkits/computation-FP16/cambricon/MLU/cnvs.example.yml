@@ -10,4 +10,4 @@ custom:
       output_data_type: "half"
       input_data_random: false
       correct_check: false
-      iterations: 50000
+      iterations: 5000

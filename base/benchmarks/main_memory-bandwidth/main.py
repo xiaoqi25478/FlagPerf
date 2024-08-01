@@ -62,11 +62,19 @@ def main(config, case_config, rank, world_size, local_rank):
     multi_device_sync(config.vendor)
     start_time = time.perf_counter()
 
-    for _ in range(case_config.ITERS):
-        _tensor = tensor.clone()
+    with torch.profiler.profile(activities=[
+        torch.profiler.ProfilerActivity.CPU,
+        torch.profiler.ProfilerActivity.MLU],
+        schedule=torch.profiler.schedule(wait=0,warmup=0,active=1),
+        record_shapes=True,
+        with_stack=True,
+        with_flops=True,
+        on_trace_ready=torch.profiler.tensorboard_trace_handler("mlu_log")) as prof:
+        for _ in range(case_config.ITERS):
+            _tensor = tensor.clone()
+    print(prof.key_averages().table(sort_by="self_mlu_time_total", row_limit=-1))
+
     torch.cuda.synchronize()
-
-
     host_device_sync(config.vendor)
     multi_device_sync(config.vendor)
     end_time = time.perf_counter()

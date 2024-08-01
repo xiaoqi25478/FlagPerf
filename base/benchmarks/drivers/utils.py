@@ -30,7 +30,7 @@ def host_device_sync(vendor):
     if vendor == "nvidia":
         torch.cuda.synchronize()
     else:
-        print("unspecified vendor {}, using default pytorch \"torch.cuda.synchronize\"".format(vendor))
+        # print("unspecified vendor {}, using default pytorch \"torch.cuda.synchronize\"".format(vendor))
         torch.cuda.synchronize()
 
 
@@ -38,7 +38,7 @@ def multi_device_sync(vendor):
     if vendor == "nvidia":
         torch.distributed.barrier()
     else:
-        print("unspecified vendor {}, using default pytorch \"torch.distributed.barrier\"".format(vendor))
+        # print("unspecified vendor {}, using default pytorch \"torch.distributed.barrier\"".format(vendor))
         torch.distributed.barrier()
         
 

@@ -19,7 +19,7 @@ sshpass -p "123456" ssh-copy-id -i ~/.ssh/id_rsa.pub -p 1234 root@${ip2}
 
 # step-3 正式测试
 finished_str="All Result Check: PASSED" 
-LOG_PATH=`pwd`/`hostname -i`_run_log
+LOG_PATH=`pwd`/run_log
 cur_ip=`hostname -i`
 tcp_if_include=`echo ${ip1} | awk -F'.' '{print $1"."$2"."$3}'`
 if [ "$cur_ip" == "$ip1" ]; then

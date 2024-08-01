@@ -40,7 +40,7 @@ def parse_args():
     
 
 def main(config, case_config, rank, world_size, local_rank):    
-    unset_ieee_float32(config.vendor)
+    set_ieee_float32(config.vendor)
     if rank == 0:
         print("finish initialization")
     
@@ -49,8 +49,8 @@ def main(config, case_config, rank, world_size, local_rank):
     k = case_config.K
     
     
-    matrixA = torch.randn(m, n, dtype=torch.float32).to(local_rank)
-    matrixB = torch.randn(n, k, dtype=torch.float32).to(local_rank)
+    matrixA = torch.randn(m, n, dtype=torch.int8).to(local_rank)
+    matrixB = torch.randn(n, k, dtype=torch.int8).to(local_rank)
     
     host_device_sync(config.vendor)
     multi_device_sync(config.vendor)
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     multi_device_sync(config.vendor)
     for output_rank in range(config.node_size):
         if local_rank == output_rank:
-            print(r"[FlagPerf Result]Rank {}'s computation-TF32=".format(dist.get_rank()) + str(result) + "TFLOPS")
+            print(r"[FlagPerf Result]Rank {}'s computation-INT8=".format(dist.get_rank()) + str(result) + "TFLOPS")
         multi_device_sync(config.vendor)
         
     dist.destroy_process_group()

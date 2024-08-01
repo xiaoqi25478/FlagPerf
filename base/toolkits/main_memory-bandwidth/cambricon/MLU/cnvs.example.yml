@@ -1,4 +1,4 @@
 custom:
 - custom:
     memory_bandwidth:
-      iterations: 15000
+      iterations: 1500

@@ -46,24 +46,32 @@ def main(config, case_config, rank, world_size, local_rank):
 
     print(f"Init tensor size: {byte_size} MiB...")
 
-    while byte_size >= min_byte_size:
-        try:
-            tensor = torch.empty(((byte_size * 1024 * 1024) // 4), dtype=torch.float32, device=device)
-            allocated_tensors.append(tensor)
-            total_allocated += byte_size
-            print(f"Allocated: {total_allocated} MiB")
-        except RuntimeError as e:
-            if "out of memory" in str(e):
-                print(f"CUDA OOM at tensor size {byte_size} MiB. Allocated:{total_allocated} MiB")
-                byte_size //= 2
-                if byte_size < min_byte_size:
-                    print("Tensor size == 1 Byte, finish test.")
-                    break
+    with torch.profiler.profile(activities=[
+        torch.profiler.ProfilerActivity.CPU,
+        torch.profiler.ProfilerActivity.MLU],
+        schedule=torch.profiler.schedule(wait=0,warmup=0,active=1),
+        record_shapes=True,
+        with_stack=True,
+        with_flops=True,
+        on_trace_ready=torch.profiler.tensorboard_trace_handler("mlu_log")) as prof:
+        while byte_size >= min_byte_size:
+            try:
+                tensor = torch.empty(((byte_size * 1024 * 1024) // 4), dtype=torch.float32, device=device)
+                allocated_tensors.append(tensor)
+                total_allocated += byte_size
+                print(f"Allocated: {total_allocated} MiB")
+            except RuntimeError as e:
+                if "out of memory" in str(e):
+                    print(f"CUDA OOM at tensor size {byte_size} MiB. Allocated:{total_allocated} MiB")
+                    byte_size //= 2
+                    if byte_size < min_byte_size:
+                        print("Tensor size == 1 Byte, finish test.")
+                        break
+                    else:
+                        print(f"Reduce tensor size to {byte_size} MiB")
                 else:
-                    print(f"Reduce tensor size to {byte_size} MiB")
-            else:
-                raise
-
+                    raise
+    print(prof.key_averages().table(sort_by="self_mlu_time_total", row_limit=-1))   
     start = time.time()
     while time.time() <= start + 300:
         foo_str = "Waiting for power monitor"
